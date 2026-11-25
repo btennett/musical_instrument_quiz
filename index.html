@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Musical Instruments Quiz</title>
+
+<meta name="description" content="12 multiple-choice questions: name the instrument from the photo, from ancient lyres to laser harps. Every game is different.">
+<meta name="theme-color" content="#8C3B1F">
+
+<!-- Link previews (WhatsApp, iMessage, Facebook, Slack, X…)
+     Set for https://btennett.github.io/musical_instrument_quiz/  — change og:url and the image addresses
+     if you host this at a different address.
+     og:image MUST be a full https:// address or WhatsApp won't show it.
+     Upload preview.png (1200×630), icon-512.png, apple-touch-icon.png and favicon-32.png alongside this file. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Musical Instruments Quiz">
+<meta property="og:title" content="Musical Instruments Quiz">
+<meta property="og:description" content="12 multiple-choice questions: name the instrument from the photo, from ancient lyres to laser harps. Every game is different.">
+<meta property="og:url" content="https://btennett.github.io/musical_instrument_quiz/">
+<meta property="og:image" content="https://btennett.github.io/musical_instrument_quiz/preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Musical Instruments Quiz: a photo of an instrument with five names to choose from.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Musical Instruments Quiz">
+<meta name="twitter:description" content="12 multiple-choice questions: name the instrument from the photo, from ancient lyres to laser harps. Every game is different.">
+<meta name="twitter:image" content="https://btennett.github.io/musical_instrument_quiz/preview.png">
+
+<!-- Browser tab and home-screen icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Photos are looked up on Wikipedia and loaded from Wikimedia -->
+<link rel="preconnect" href="https://en.wikipedia.org">
+<link rel="preconnect" href="https://upload.wikimedia.org">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{
+  --bg:#F1EDE6; --surface:#FFFFFF; --ink:#1E1A16; --muted:#665E55; --line:#DDD5CA;
+  --accent:#8C3B1F; --good:#1D7448; --bad:#B0281F; --good-soft:#E2F1E8; --bad-soft:#FAE6E3;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-head:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15120F; --surface:#201B17; --ink:#EEE7DF; --muted:#A59B90; --line:#3A322B;
+  --accent:#F0A27E; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15120F; --surface:#201B17; --ink:#EEE7DF; --muted:#A59B90; --line:#3A322B;
+  --accent:#F0A27E; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-display);-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+.app{height:100%;height:100dvh;max-width:560px;margin:0 auto;display:grid;grid-template-rows:auto 1fr auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.top{padding-top:max(12px,env(safe-area-inset-top,0px));padding-bottom:8px;display:flex;flex-direction:column;gap:9px}
+.top-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;margin:0}
+.brand em{font-style:normal;color:var(--accent)}
+.score{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.score b{color:var(--ink);font-size:1rem}
+.dots{display:grid;gap:5px;list-style:none;margin:0;padding:0}
+.dots li{height:6px;border-radius:3px;background:var(--line)}
+.dots li.now{background:var(--accent)} .dots li.ok{background:var(--good)} .dots li.no{background:var(--bad)}
+
+.stage{overflow-y:auto;min-height:0;padding-block:4px 10px;overscroll-behavior:contain}
+.card{display:flex;flex-direction:column;gap:9px}
+.meta{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.question{font-family:var(--f-head);font-weight:600;font-size:clamp(1.15rem,4.8vw,1.45rem);line-height:1.3;margin:0;text-wrap:balance}
+
+.photo-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px}
+.photo{display:block;width:100%;height:clamp(110px,calc(100vh - 490px),300px);height:clamp(110px,calc(100svh - 490px),300px);object-fit:contain;border-radius:9px;background:var(--surface)}
+.photo-msg{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.8rem;color:var(--muted);text-align:center;padding:0 16px}
+.review .thumb{width:52px;height:40px;object-fit:cover;border-radius:6px;background:var(--bg);vertical-align:middle}
+.options{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.opt{width:100%;min-height:44px;display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:12px;
+  text-align:left;padding:5px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);
+  font-size:1rem;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,transform .08s}
+.opt:active{transform:scale(.985)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.opt:not([disabled]):hover{border-color:var(--accent)}}
+.opt .key{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.85rem;
+  background:var(--bg);color:var(--muted)}
+.opt .txt{min-width:0;line-height:1.3}
+.opt .res{font-weight:800;font-size:1.05rem}
+.opt[disabled]{cursor:default}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.correct .key{background:var(--good);color:var(--surface)}
+.opt.correct .res{color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key{background:var(--bad);color:var(--surface)}
+.opt.wrong .res{color:var(--bad)}
+.opt.faded{opacity:.5}
+
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.fact .verdict{font-weight:800;font-size:1.05rem;margin:0}
+.fact .verdict.ok{color:var(--good)} .fact .verdict.no{color:var(--bad)}
+.fact p{margin:0;font-family:var(--f-head);font-size:1rem;line-height:1.55}
+.fact .credit{font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+.fact .credit a{color:inherit}
+
+.over{display:flex;flex-direction:column;gap:16px}
+.final{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.final .big{font-weight:800;font-size:3.2rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:0}
+.final p{margin:0}
+.final .best{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.row{display:flex;gap:8px}
+.ghost{flex:1;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.ghost:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.ghost:hover{border-color:var(--accent)}}
+.review-title{font-size:.8rem;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:6px 0 0;font-weight:500}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.review li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 52px 1fr;align-items:center;gap:12px}
+.review .mark{font-weight:800;font-size:1.05rem;line-height:1.3}
+.review .mark.ok{color:var(--good)} .review .mark.no{color:var(--bad)}
+.review .ans{font-size:.9rem;color:var(--muted)}
+.review .ans b{color:var(--ink);font-weight:600}
+
+.actions{padding-top:8px;padding-bottom:max(6px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
+.btn{width:100%;border:none;border-radius:12px;min-height:50px;font-weight:700;font-size:1.1rem;cursor:pointer;
+  background:var(--accent);color:var(--surface);transition:transform .08s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn[disabled]{background:var(--line);color:var(--muted);cursor:default;transform:none}
+.foot{font-family:var(--f-mono);font-size:.62rem;color:var(--muted);text-align:center;margin:5px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foot a{color:inherit}
+.error{background:var(--bad-soft);border:1px solid var(--bad);border-radius:12px;padding:14px 16px;font-size:.92rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.fact{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<!--
+================================================================
+  QUIZ CONTENT — edit only this block to make a new version.
+  ----------------------------------------------------------------
+  settings.questionsPerGame   : how many questions each game draws
+  settings.optionsPerQuestion : choices shown per question (3 to 6; 5 fits best on a phone)
+  settings.trickyChoices      : how many wrong answers come from each item's
+                                "like" list (0 = easiest, 4 = hardest; default 3)
+  settings.showGroup          : true shows the family (e.g. "Brass") above the
+                                photo, which makes the quiz easier (default false)
+  items[] : one object per instrument
+    name  : the name shown as an answer choice
+    group : the instrument family. Wrong answers not taken from "like"
+            come from the same group first (each group needs 5 or more).
+    like  : names of other instruments in this list that look similar
+            enough to be tempting wrong answers, but can still be told
+            apart in a photo.
+    wiki  : the English Wikipedia article the instrument's photos come from.
+    photo : the Wikimedia Commons file to show, without "File:"
+            (https://commons.wikimedia.org/wiki/File:<name>).
+            photo-finder.js and photo-preview.html list the other photos
+            in each article. If "photo" is left out, or the file won't
+            load, the quiz uses the article's main photo, then its other
+            photos.
+    fact  : one or two sentences shown after answering (optional)
+  Facts were checked against each instrument's English Wikipedia article.
+  Instruments that are nearly impossible to tell apart in a photo are
+  left out on purpose, so every photo has one fair answer: viola (violin),
+  piccolo (flute), cornet and flugelhorn (trumpet), euphonium (tuba),
+  marimba (xylophone), clavichord (harpsichord), kalimba (mbira),
+  oud and theorbo (lute), guzheng (koto), sackbut (trombone).
+  Also left out: instruments whose name is printed on them in the photo
+  (e.g. the Stylophone), since the photo would give the answer away.
+  Photos: Wikimedia. Each is credited via a link to its file page
+  (author and licence) shown under the fact after answering.
+================================================================
+-->
+<script type="application/json" id="quiz-data">
+{
+ "title": "Musical Instruments Quiz",
+ "version": "1.2 · November 2026",
+ "settings": {
+  "questionsPerGame": 12,
+  "optionsPerQuestion": 5,
+  "trickyChoices": 3
+ },
+ "items": [
+  {"name": "Violin", "group": "Strings", "wiki": "Violin", "photo": "Violin VL100.png", "like": ["Cello", "Erhu", "Nyckelharpa", "Hurdy-gurdy"], "fact": "The smallest member of the violin family in regular use, which gives it the highest pitch. Cremona in Italy was home to famous makers, including the Stradivari family."},
+  {"name": "Cello", "group": "Strings", "wiki": "Cello", "photo": "Cello_front_side.png", "like": ["Double bass", "Violin", "Nyckelharpa", "Hurdy-gurdy"], "fact": "Short for the Italian 'violoncello'. It's played sitting down, with a spike called the endpin resting on the floor."},
+  {"name": "Double bass", "group": "Strings", "wiki": "Double bass", "photo": "AGK bass1 full.jpg", "like": ["Cello", "Violin", "Lute", "Bouzouki"], "fact": "The largest and lowest-pitched string instrument in the modern symphony orchestra. It can be bowed or plucked."},
+  {"name": "Harp", "group": "Strings", "wiki": "Harp", "photo": "Harp.png", "like": ["Lyre", "Kora", "Hammered dulcimer", "Koto"], "fact": "Harps date back to at least 3000 BCE. A modern pedal harp has seven pedals, each one retuning every string of one note name."},
+  {"name": "Electric guitar", "group": "Strings", "wiki": "Electric guitar", "photo": "Gibson Les Paul 54 Custom.jpg", "like": ["Bouzouki", "Banjo", "Mandolin", "Keytar"], "fact": "Magnetic pickups turn the strings' vibrations into an electrical signal. The first electric string instrument sold commercially was the 'Frying Pan', a lap steel guitar designed in 1931."},
+  {"name": "Banjo", "group": "Strings", "wiki": "Banjo", "photo": "Don Wayne Reno playing the banjo with fingerpicks.jpg", "like": ["Mandolin", "Ukulele", "Bouzouki", "Shamisen"], "fact": "Its body is a thin membrane stretched over a frame, like a drum. The banjo has African roots: early forms were made by Africans in the Americas."},
+  {"name": "Mandolin", "group": "Strings", "wiki": "Mandolin", "photo": "Mandolin MET DP169023 (2).jpg", "like": ["Bouzouki", "Lute", "Ukulele", "Balalaika"], "fact": "A member of the lute family with four pairs of strings, tuned the same as a violin."},
+  {"name": "Ukulele", "group": "Strings", "wiki": "Ukulele", "photo": "Kumalae ukulele of c. 1910.webm", "like": ["Mandolin", "Banjo", "Balalaika", "Bouzouki"], "fact": "Developed in Hawaii in the 1880s from small guitar-like instruments brought by Portuguese immigrants from Madeira and other islands."},
+  {"name": "Bouzouki", "group": "Strings", "wiki": "Bouzouki", "photo": "Bouzouki tetrachordo.jpg", "like": ["Mandolin", "Lute", "Balalaika", "Banjo"], "fact": "A Greek instrument with a long fretted neck and pairs of strings. An Irish version became popular in Irish folk music from the 1960s."},
+
+  {"name": "Flute", "group": "Woodwind", "wiki": "Western concert flute", "photo": "Flûte traversière.png", "like": ["Recorder", "Clarinet", "Oboe", "Shawm"], "fact": "Flutes have no reed: the sound comes from air blown across a hole. Theobald Boehm patented the key system used on modern flutes in 1847."},
+  {"name": "Clarinet", "group": "Woodwind", "wiki": "Clarinet", "photo": "Leitner+Kraus 410 320.png", "like": ["Oboe", "Recorder", "Saxophone", "Shawm"], "fact": "A single-reed woodwind with a nearly cylindrical bore. Johann Christoph Denner is generally credited with inventing it around 1700."},
+  {"name": "Oboe", "group": "Woodwind", "wiki": "Oboe", "photo": "Oboe Patricola Artista PT1.jpg", "like": ["Clarinet", "Shawm", "Bassoon", "Recorder"], "fact": "A double-reed woodwind. Orchestras tune to a concert A played by the first oboe."},
+  {"name": "Bassoon", "group": "Woodwind", "wiki": "Bassoon", "photo": "FoxBassoon.png", "like": ["Oboe", "Serpent", "Clarinet", "Saxophone"], "fact": "Its tube is about 2.5 m (8 ft) long but doubled back on itself, so the instrument stands about 1.3 m tall."},
+  {"name": "Saxophone", "group": "Woodwind", "wiki": "Saxophone", "photo": "Vito Model 35 alto sax1.jpg", "like": ["Clarinet", "Bassoon", "Trumpet", "French horn"], "fact": "Usually made of brass, but it counts as a woodwind because the sound comes from a reed. Belgian maker Adolphe Sax invented it in the early 1840s."},
+  {"name": "Recorder", "group": "Woodwind", "wiki": "Recorder (musical instrument)", "photo": "VariousRecorderFlutes.jpg", "like": ["Flute", "Ocarina", "Clarinet", "Shawm"], "fact": "Seven finger holes and a thumb hole. Popular in Renaissance and Baroque music, it was revived in the 20th century and is now a favourite in schools."},
+  {"name": "Bagpipes", "group": "Woodwind", "wiki": "Bagpipes", "photo": "Enter The Haggis Bagpipe.jpg", "like": ["Hurdy-gurdy", "Crumhorn", "Shawm", "Accordion"], "fact": "The player squeezes air from the bag to keep the sound going. The chanter plays the tune while the drones hold a steady note underneath."},
+  {"name": "Pan flute", "group": "Woodwind", "wiki": "Pan flute", "photo": "Flute de pan MHNT ETH AC NH 31 Savès.jpg", "like": ["Recorder", "Ocarina", "Harmonica", "Flute"], "fact": "Named after Pan, the Greek god of nature and shepherds. Each pipe is closed at the bottom and plays one note."},
+  {"name": "Ocarina", "group": "Woodwind", "wiki": "Ocarina", "photo": "2016-01 Ocarina front.jpg", "like": ["Recorder", "Pan flute", "Harmonica", "Flute"], "fact": "A vessel flute. Its name means 'little goose' in the Bologna dialect; Giuseppe Donati of Budrio made the modern 10-hole version in 1853."},
+  {"name": "Harmonica", "group": "Woodwind", "wiki": "Harmonica", "photo": "16-hole chrom 10-hole diatonic.jpg", "like": ["Melodica", "Concertina", "Accordion", "Pan flute"], "fact": "A free-reed instrument with separate reeds for blowing and drawing air. It's also called the mouth organ, and the common diatonic type the 'blues harp'."},
+
+  {"name": "Trumpet", "group": "Brass", "wiki": "Trumpet", "photo": "Yamaha Trumpet YTR-8335LA crop.jpg", "like": ["Trombone", "French horn", "Carnyx", "Saxophone"], "fact": "Trumpets go back thousands of years: bronze and silver ones were found in Tutankhamun's tomb."},
+  {"name": "Trombone", "group": "Brass", "wiki": "Trombone", "photo": "Yamaha Tenor trombone YSL-891Z (re-crop).jpg", "like": ["Trumpet", "Tuba", "Sousaphone", "Carnyx"], "fact": "Changes pitch with a telescoping slide. Its name is Italian for 'large trumpet'."},
+  {"name": "French horn", "group": "Brass", "wiki": "French horn", "photo": "French horn blue background.jpg", "like": ["Tuba", "Trumpet", "Sousaphone", "Serpent"], "fact": "The player's right hand sits inside the bell, and moving it changes the pitch. The International Horn Society recommends calling it simply 'the horn'."},
+  {"name": "Tuba", "group": "Brass", "wiki": "Tuba", "photo": "Yamaha Bass tuba YFB-822.tif", "like": ["Sousaphone", "French horn", "Trombone", "Serpent"], "fact": "Invented in Prussia and patented in 1835 as the 'Baß-Tuba'."},
+  {"name": "Sousaphone", "group": "Brass", "wiki": "Sousaphone", "photo": "Sousaphones in marching band Freedom Festival 2011 Provo UT July 2011.jpg", "like": ["Tuba", "French horn", "Trombone", "Serpent"], "fact": "A tuba bent into a circle to fit around the player, first built around 1893 at the request of bandleader John Philip Sousa. It's easy to carry, which makes it a marching-band favourite."},
+  {"name": "Alphorn", "group": "Brass", "wiki": "Alphorn", "photo": "Alphorns Grindelwald.jpg", "like": ["Didgeridoo", "Carnyx", "Serpent", "Crumhorn"], "fact": "Traditionally carved from a single pine trunk, with no valves. Alpine herders used it to signal between high pastures and valleys."},
+
+  {"name": "Timpani", "group": "Percussion", "wiki": "Timpani", "photo": "Timpani, Yamaha pedal timpani.jpg", "like": ["Steelpan", "Djembe", "Tabla", "Gong"], "fact": "Also called kettledrums. On most modern timpani a foot pedal changes the tension of the head, and with it the pitch."},
+  {"name": "Xylophone", "group": "Percussion", "wiki": "Xylophone", "photo": "Xylophone.jpg", "like": ["Glockenspiel", "Vibraphone", "Hammered dulcimer", "Mbira"], "fact": "Its name comes from the Greek words for 'wood' and 'sound'. Players strike its wooden bars with mallets."},
+  {"name": "Drum kit", "group": "Percussion", "wiki": "Drum kit", "photo": "4-piece drum set in a music school.jpg", "like": ["Electronic drum kit", "Timpani", "Cajón", "Djembe"], "fact": "Drums and cymbals set up for one player. Foot pedals play the bass drum and open and close the hi-hat cymbals."},
+  {"name": "Triangle", "group": "Percussion", "wiki": "Triangle (musical instrument)", "photo": "Triangle 001.jpg", "like": ["Castanets", "Gong", "Glockenspiel", "Bodhrán"], "fact": "One corner is left open. That stops it sounding a definite pitch and gives it its rich, shimmering ring."},
+  {"name": "Gong", "group": "Percussion", "wiki": "Gong", "photo": "COLLECTIE TROPENMUSEUM Gong hangend in een standaard onderdeel van gamelan Semar Pagulingan TMnr 1340-13.jpg", "like": ["Steelpan", "Handpan", "Timpani", "Bodhrán"], "fact": "Gongs originated in Southeast Asia. Large flat-faced gongs used in orchestras are often called tam-tams."},
+  {"name": "Steelpan", "group": "Percussion", "wiki": "Steelpan", "photo": "Steelpan Instruments at Trinidad and Tobago Carnival.jpg", "like": ["Handpan", "Gong", "Timpani", "Bodhrán"], "fact": "Developed in Trinidad and Tobago, where it's the national instrument. Players began making pans from 55-gallon oil drums around 1947."},
+  {"name": "Djembe", "group": "Percussion", "wiki": "Djembe", "photo": "Lenke djembe from Mali.jpeg", "like": ["Tabla", "Cajón", "Bodhrán", "Timpani"], "fact": "A goblet-shaped West African drum played with bare hands. The Bambara people say its name comes from a saying meaning 'everyone gather together in peace'."},
+  {"name": "Glockenspiel", "group": "Percussion", "wiki": "Glockenspiel", "photo": "Glockenspiel-malletech.jpg", "like": ["Xylophone", "Vibraphone", "Hammered dulcimer", "Mbira"], "fact": "German for 'bell play'. Its bars are aluminium or steel, struck with hard mallets, unlike the wooden bars of a xylophone."},
+  {"name": "Vibraphone", "group": "Percussion", "wiki": "Vibraphone", "photo": "Vibraphone overhead with mallets.jpg", "like": ["Xylophone", "Glockenspiel", "Hammered dulcimer", "Steelpan"], "fact": "Metal bars over resonator tubes, where motor-driven discs give the sound its wavering tremolo. Leedy began selling it in 1924."},
+  {"name": "Castanets", "group": "Percussion", "wiki": "Castanets", "photo": "Castagnetten, BK-NM-11430-78.jpg", "like": ["Triangle", "Mbira", "Ocarina", "Bodhrán"], "fact": "A pair of shells clicked together in the hand, used in flamenco. The Spanish name comes from 'castaña', chestnut, and they were traditionally made of chestnut wood."},
+  {"name": "Cajón", "group": "Percussion", "wiki": "Cajón", "photo": "Golden Colibri Handmade Cajón, by 4hands.jpg", "like": ["Djembe", "Bodhrán", "Drum kit", "Tabla"], "fact": "From Peru; its name is Spanish for 'box'. The player sits on it and slaps the front face."},
+  {"name": "Bodhrán", "group": "Percussion", "wiki": "Bodhrán", "photo": "177-Bodhran-Hinnerk-Ruemenapf-0037-p70.jpg", "like": ["Djembe", "Cajón", "Gong", "Handpan"], "fact": "An Irish frame drum, usually with a goatskin head, played with a small stick called a cipín or tipper."},
+  {"name": "Handpan", "group": "Percussion", "wiki": "Handpan", "photo": "Handpans 2020 by Glenn Francis.jpg", "like": ["Steelpan", "Gong", "Bodhrán", "Timpani"], "fact": "Two metal half-shells glued together with tuned 'tone fields'. It grew out of the Hang, introduced in 2000."},
+
+  {"name": "Piano", "group": "Keyboard", "wiki": "Piano", "photo": "Steinway Vienna 002.JPG", "like": ["Harpsichord", "Pipe organ", "Hammond organ", "Synthesizer"], "fact": "Invented by Bartolomeo Cristofori in Italy around 1700. Its full name, pianoforte, means it can play both soft and loud."},
+  {"name": "Harpsichord", "group": "Keyboard", "wiki": "Harpsichord", "photo": "ClavecinRuckers&Taskin.JPG", "like": ["Piano", "Pipe organ", "Hammered dulcimer", "Hammond organ"], "fact": "Pressing a key makes a small plectrum, once made of quill, pluck a string. Every note sounds equally loud however hard you press."},
+  {"name": "Pipe organ", "group": "Keyboard", "wiki": "Pipe organ", "photo": "Neunkirchen am Brand Kirche Orgel-20210411-RM-155230.jpg", "like": ["Hammond organ", "Harpsichord", "Piano", "Pan flute"], "fact": "Air is blown through pipes chosen from the keyboard, each pipe sounding one pitch. The largest organs have more than 33,000 pipes."},
+  {"name": "Accordion", "group": "Keyboard", "wiki": "Accordion", "photo": "PianoAccordeon.jpg", "like": ["Concertina", "Melodica", "Harmonica", "Hurdy-gurdy"], "fact": "Bellows push air past free reeds to make the sound. Cyrill Demian patented it in Vienna in 1829."},
+  {"name": "Melodica", "group": "Keyboard", "wiki": "Melodica", "photo": "Melodica.jpg", "like": ["Harmonica", "Accordion", "Keytar", "Concertina"], "fact": "A small keyboard you blow into through a mouthpiece, with free reeds inside. Hohner introduced it in the late 1950s."},
+  {"name": "Hammond organ", "group": "Keyboard", "wiki": "Hammond organ", "photo": "Hammond B3, Museum of Making Music (without warning board).jpg", "like": ["Pipe organ", "Synthesizer", "Piano", "Ondes Martenot"], "fact": "First made in 1935. Spinning metal 'tonewheels' create its sound, which is often played through a rotating Leslie speaker."},
+  {"name": "Concertina", "group": "Keyboard", "wiki": "Concertina", "photo": "Wheatstone English Concertina.jpg", "like": ["Accordion", "Melodica", "Harmonica", "Hurdy-gurdy"], "fact": "Unlike the accordion, its buttons are on the ends. Charles Wheatstone invented the English concertina in 1829."},
+
+  {"name": "Theremin", "group": "Electronic", "wiki": "Theremin", "photo": "Etherwave Theremin Kit.jpg", "like": ["Laser harp", "Ondes Martenot", "Drum machine", "Synthesizer"], "fact": "Played without touching it: one antenna senses your hand to set the pitch, the other the volume. Leon Theremin invented it in 1920."},
+  {"name": "Synthesizer", "group": "Electronic", "wiki": "Minimoog", "photo": "Minimoog model D (early 1970s), MIM PHX.jpg", "like": ["Ondes Martenot", "Drum machine", "Hammond organ", "Keytar"], "fact": "Creates sound electronically. This Minimoog, released in 1970, was the first synthesizer sold in music shops."},
+  {"name": "Drum machine", "group": "Electronic", "wiki": "Roland TR-808", "photo": "TR-808 - MIM, Phoenix (2019-08-30 14.59.26 by Bryan Pocius) (cropped).jpg", "like": ["Synthesizer", "Electronic drum kit", "Keytar", "Ondes Martenot"], "fact": "Makes drum beats electronically. Roland's TR-808 (1980) sold poorly at first, yet went on to be used on more hit records than any other drum machine."},
+  {"name": "Keytar", "group": "Electronic", "wiki": "Keytar", "photo": "Yamaha KX1.jpg", "like": ["Synthesizer", "Electric guitar", "Melodica", "Ondes Martenot"], "fact": "A keyboard hung from a strap like a guitar; the name blends 'keyboard' and 'guitar'. It was a 1980s favourite and made a comeback in the late 2000s."},
+  {"name": "Electronic drum kit", "group": "Electronic", "wiki": "Electronic drum", "photo": "Roland V-Drum TD-12S V-Stage set + expansion.jpg", "like": ["Drum kit", "Drum machine", "Handpan", "Cajón"], "fact": "Sensors in each pad send a signal to a drum module, which plays the sound. With headphones you can practise silently."},
+  {"name": "Laser harp", "group": "Electronic", "wiki": "Laser harp", "photo": "Laser harp novaYA (7).jpg", "like": ["Theremin", "Harp", "Ondes Martenot", "Synthesizer"], "fact": "Its 'strings' are laser beams: blocking a beam triggers a note. Jean-Michel Jarre has featured it in nearly all his concerts since 1981."},
+  {"name": "Ondes Martenot", "group": "Electronic", "wiki": "Ondes Martenot", "photo": "Ondes martenot.jpg", "like": ["Theremin", "Synthesizer", "Hammond organ", "Harpsichord"], "fact": "Invented in 1928 by French cellist Maurice Martenot. Early models were played by sliding a ring along a wire; Radiohead's Jonny Greenwood uses one."},
+
+  {"name": "Lute", "group": "Early instruments", "wiki": "Lute", "photo": "Lute (by Princess Ruto, 2013-02-11).jpg", "like": ["Bouzouki", "Mandolin", "Sitar", "Hurdy-gurdy"], "fact": "The most important instrument for secular music in Renaissance Europe. Its pegbox is bent back at almost a right angle."},
+  {"name": "Lyre", "group": "Early instruments", "wiki": "Lyre", "photo": "Mousai Helikon Staatliche Antikensammlungen Schoen80 n1.jpg", "like": ["Harp", "Kora", "Hammered dulcimer", "Nyckelharpa"], "fact": "The oldest surviving lyres, the Lyres of Ur, date from about 2500 BCE. In ancient Greece, lyre playing accompanied recitals of lyric poetry."},
+  {"name": "Hurdy-gurdy", "group": "Early instruments", "wiki": "Hurdy-gurdy", "photo": "Louvet Drehleier.JPG", "like": ["Nyckelharpa", "Lute", "Bagpipes", "Accordion"], "fact": "A crank turns a rosined wheel that rubs the strings like a violin bow, while keys press the melody strings. Its drone strings give it a bagpipe-like sound."},
+  {"name": "Serpent", "group": "Early instruments", "wiki": "Serpent (instrument)", "photo": "Manifattura italiana, Serpentone, fine sec. XVIII. Museo Civico di Modena, foto P. Terzi.jpg", "like": ["Crumhorn", "Alphorn", "Bassoon", "Tuba"], "fact": "A bass wind instrument from the late 1500s, named for its snaking shape. It has a mouthpiece like a trombone's but finger holes like a woodwind."},
+  {"name": "Crumhorn", "group": "Early instruments", "wiki": "Crumhorn", "photo": "Moderne Krummhoerner.jpg", "like": ["Shawm", "Serpent", "Recorder", "Oboe"], "fact": "A Renaissance instrument whose name means 'bent horn'. Its double reed sits inside a cap, so the player's lips never touch it."},
+  {"name": "Carnyx", "group": "Early instruments", "wiki": "Carnyx", "photo": "CarnyxDeTintignac2.jpg", "like": ["Alphorn", "Serpent", "Trumpet", "Didgeridoo"], "fact": "An Iron Age Celtic bronze trumpet, held upright and about 1.8 m tall, with a bell shaped like an open-mouthed boar's head."},
+  {"name": "Shawm", "group": "Early instruments", "wiki": "Shawm", "photo": "Salmaj.jpg", "like": ["Crumhorn", "Oboe", "Recorder", "Clarinet"], "fact": "A loud double-reed instrument of medieval and Renaissance times, played almost only outdoors. The oboe descends from it."},
+  {"name": "Hammered dulcimer", "group": "Early instruments", "wiki": "Hammered dulcimer", "photo": "Hammered dulcimer.JPG", "like": ["Koto", "Harpsichord", "Lyre", "Glockenspiel"], "fact": "Strings stretched over a trapezoid-shaped soundboard are struck with small hammers held in each hand. Its relatives include the Hungarian cimbalom."},
+  {"name": "Nyckelharpa", "group": "Early instruments", "wiki": "Nyckelharpa", "photo": "Nyckelharpa 0930 (cropped).jpg", "like": ["Hurdy-gurdy", "Violin", "Erhu", "Lute"], "fact": "A Swedish bowed instrument with keys that press the strings to change the pitch. The oldest surviving one dates from 1526."},
+
+  {"name": "Sitar", "group": "World", "wiki": "Sitar", "photo": "Sitar, late 19th Century.jpg", "like": ["Lute", "Shamisen", "Bouzouki", "Erhu"], "fact": "Movable frets, plus sympathetic strings that ring along with the ones being played. Ravi Shankar made it famous outside South Asia from the late 1950s."},
+  {"name": "Koto", "group": "World", "wiki": "Koto (instrument)", "photo": "Japanese Koto.jpg", "like": ["Hammered dulcimer", "Harp", "Shamisen", "Sitar"], "fact": "Japan's national instrument, derived from the Chinese zheng and se. The common type has 13 strings over movable bridges."},
+  {"name": "Erhu", "group": "World", "wiki": "Erhu", "photo": "Erhu in the Mets.jpg", "like": ["Shamisen", "Violin", "Sitar", "Nyckelharpa"], "fact": "A two-stringed Chinese fiddle whose bow passes between the strings. The front of the sound box is covered with python skin."},
+  {"name": "Didgeridoo", "group": "World", "wiki": "Didgeridoo", "photo": "Australiandidgeridoos.jpg", "like": ["Alphorn", "Carnyx", "Pan flute", "Serpent"], "fact": "Developed by Aboriginal peoples of northern Australia, usually from eucalyptus trunks hollowed out by termites. Players use circular breathing to keep the sound going."},
+  {"name": "Kora", "group": "World", "wiki": "Kora (instrument)", "photo": "4 Koras.jpg", "like": ["Harp", "Lyre", "Sitar", "Banjo"], "fact": "A 21-string West African instrument with a body made from half a gourd covered in cowhide, traditionally played by jali (griot) families."},
+  {"name": "Balalaika", "group": "World", "wiki": "Balalaika", "photo": "3 string prim balalaika.png", "like": ["Bouzouki", "Mandolin", "Shamisen", "Ukulele"], "fact": "A Russian instrument with a triangular wooden body and three strings."},
+  {"name": "Tabla", "group": "World", "wiki": "Tabla", "photo": "Prop. Tabla.jpg", "like": ["Djembe", "Timpani", "Bodhrán", "Cajón"], "fact": "A pair of hand drums from the Indian subcontinent. The dark circle on each head is a tuning paste called syahi."},
+  {"name": "Shamisen", "group": "World", "wiki": "Shamisen", "photo": "Man playing shamisen.jpg", "like": ["Banjo", "Erhu", "Balalaika", "Sitar"], "fact": "A three-stringed Japanese instrument played with a large plectrum called a bachi."},
+  {"name": "Mbira", "group": "World", "wiki": "Mbira", "photo": "Ene mbira.jpg", "like": ["Kora", "Glockenspiel", "Xylophone", "Hammered dulcimer"], "fact": "Traditional to the Shona people of Zimbabwe: metal tines on a wooden board, plucked with the thumbs. The kalimba is a Westernised version from the 1950s."}
+ ]
+}
+</script>
+
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <h1 class="brand"><em>Instruments</em> Quiz</h1>
+      <div class="score" id="scoreBox"></div>
+    </div>
+    <ol class="dots" id="dots" aria-hidden="true"></ol>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="card" id="play">
+      <div class="meta" id="cat"></div>
+      <h2 class="question" id="question"></h2>
+      <div class="photo-box"><img class="photo" id="photo" alt=""><div class="photo-msg" id="photoMsg" hidden></div></div>
+      <ol class="options" id="options"></ol>
+      <div class="fact" id="fact" hidden>
+        <p class="verdict" id="verdict"></p>
+        <p id="factText"></p>
+        <p class="credit"><a id="credit" href="#" target="_blank" rel="noopener">Photo: Wikimedia (author and licence)</a></p>
+      </div>
+    </section>
+
+    <section class="over" id="over" hidden>
+      <div class="final">
+        <p class="big" id="finalScore"></p>
+        <p id="finalMsg"></p>
+        <p class="best" id="best"></p>
+      </div>
+      <div class="row">
+        <button class="ghost" id="shareBtn" type="button">Share score</button>
+      </div>
+      <h2 class="review-title">Your answers</h2>
+      <ol class="review" id="review"></ol>
+    </section>
+  </main>
+
+  <footer class="actions">
+    <button class="btn" id="mainBtn" type="button" disabled>Pick an answer</button>
+    <p class="foot" id="foot"></p>
+  </footer>
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+// ---------- Load and check the content ----------
+const $ = id => document.getElementById(id);
+const KEYS = "ABCDEF";
+let DATA, ITEMS = [], PER = 12, NOPT = 5, TRICKY = 3, SHOWGROUP = false;
+const shuffle = a => { a = [...a]; for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+
+try {
+  DATA = JSON.parse($("quiz-data").textContent);
+  PER = Math.max(1, +(DATA.settings && DATA.settings.questionsPerGame) || 12);
+  NOPT = Math.min(6, Math.max(3, +(DATA.settings && DATA.settings.optionsPerQuestion) || 5));
+  const t = DATA.settings && DATA.settings.trickyChoices;
+  TRICKY = Math.max(0, t === undefined ? 3 : +t || 0);
+  SHOWGROUP = !!(DATA.settings && DATA.settings.showGroup);
+  (DATA.items || []).forEach((b, n) => {
+    if (!b.name || !(b.wiki || b.photo)) console.warn(`Item ${n + 1} skipped: missing name, or both wiki and photo.`);
+    else ITEMS.push(b);
+  });
+} catch (e) {
+  console.error(e);
+}
+
+// ---------- Photos ----------
+// An item with "photo" uses that Commons file (resized by Commons). Otherwise the quiz asks the
+// Wikipedia API for the main photo of the "wiki" article (free licences only),
+// resized to 1200px wide so phones don't download full-size originals.
+// If an article has no main photo, or a photo won't load, the quiz falls back to
+// the other Commons photos used in the same article (wider than tall first).
+const API = "https://en.wikipedia.org/w/api.php";
+const commonsSrc = (file, width) => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(file) + "?width=" + width;
+const filePage = (file, site) => `https://${site}/wiki/File:` + encodeURIComponent(file.replace(/ /g, "_"));
+const api = async params => {
+  const r = await fetch(API + "?" + new URLSearchParams({ format: "json", formatversion: "2", origin: "*", ...params }));
+  if (!r.ok) throw new Error("Wikipedia answered " + r.status);
+  return (await r.json()).query || {};
+};
+
+// Other free (Commons) JPEG photos in an article, best candidates first.
+async function articlePhotos(title, width, skip) {
+  const q = await api({ action: "query", redirects: "1", generator: "images", titles: title, gimlimit: "max",
+    prop: "imageinfo", iiprop: "url|size|mime", iiurlwidth: String(width) });
+  return (q.pages || [])
+    .filter(pg => pg.imagerepository === "shared" && pg.imageinfo && pg.imageinfo[0].mime === "image/jpeg")
+    .map(pg => { const ii = pg.imageinfo[0]; return { file: pg.title.replace(/^File:/, ""), src: ii.thumburl || ii.url, w: ii.width, h: ii.height }; })
+    .filter(c => c.file !== skip && Math.max(c.w, c.h) >= 600)
+    .sort((x, y) => ((y.w >= y.h * 1.15) - (x.w >= x.h * 1.15)) || (y.w * y.h - x.w * x.h));
+}
+
+// Move an item on to its next fallback photo. Returns false when none are left.
+async function nextPhoto(b) {
+  if (!b.wiki) return false;
+  if (!b.alts) { try { b.alts = await articlePhotos(b.wiki, 1200, b.file); } catch (e) { b.alts = []; } }
+  const c = b.alts.shift();
+  if (!c) return false;
+  b.file = c.file; b.src = c.src; b.credit = filePage(c.file, "commons.wikimedia.org");
+  console.warn(`"${b.name}": using another photo from the article, ${c.file}`);
+  return true;
+}
+
+async function loadPhotos() {
+  ITEMS.forEach(b => { if (b.photo) { b.file = b.photo; b.src = commonsSrc(b.photo, 1200); b.credit = filePage(b.photo, "commons.wikimedia.org"); } });
+  const titles = [...new Set(ITEMS.filter(b => !b.photo).map(b => b.wiki))];
+  const found = {};
+  for (let k = 0; k < titles.length; k += 50) {
+    const q = await api({ action: "query", redirects: "1", prop: "pageimages", piprop: "thumbnail|name", pithumbsize: "1200",
+      pilicense: "free", titles: titles.slice(k, k + 50).join("|") });
+    const alias = {};
+    [...(q.normalized || []), ...(q.redirects || [])].forEach(a => { alias[a.from] = a.to; });
+    const pages = {};
+    (q.pages || []).forEach(pg => { pages[pg.title] = pg; });
+    titles.slice(k, k + 50).forEach(t => {
+      let x = t; for (let n = 0; n < 3 && alias[x]; n++) x = alias[x];
+      const pg = pages[x];
+      if (pg && pg.thumbnail && pg.pageimage) found[t] = pg;
+    });
+  }
+  await Promise.all(ITEMS.map(async b => {
+    if (b.photo) return;
+    const pg = found[b.wiki];
+    if (pg) { b.file = pg.pageimage.replace(/_/g, " "); b.src = pg.thumbnail.source; b.credit = filePage(pg.pageimage, "en.wikipedia.org"); }
+    else if (!(await nextPhoto(b))) console.warn(`No photo found for "${b.name}" (article "${b.wiki}"). Left out of the quiz.`);
+  }));
+  ITEMS = ITEMS.filter(b => b.src);
+}
+
+// Build a question with wrong answers taken from other instruments,
+// preferring the same group so the choices are plausible.
+function makeQuestion(b) {
+  const others = ITEMS.filter(o => o.name !== b.name), have = new Set(others.map(o => o.name));
+  const tricky = shuffle((b.like || []).filter(n => have.has(n))).slice(0, TRICKY);
+  const same = shuffle(others.filter(o => o.group === b.group).map(o => o.name));
+  const rest = shuffle(others.filter(o => o.group !== b.group).map(o => o.name));
+  const wrong = [...new Set([...tricky, ...same, ...rest])].slice(0, NOPT - 1);
+  return { category: b.group || "Instruments", q: "Which instrument is this?", item: b,
+           answer: b.name, options: [b.name, ...wrong], fact: b.fact };
+}
+
+// ---------- Game ----------
+let round = [], i = 0, score = 0, answers = [], picked = false;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const total = () => round.length;
+
+function header() {
+  const done = !$("over").hidden;
+  $("scoreBox").innerHTML = done ? `Done · Score <b>${score}</b>`
+    : `Q <b>${Math.min(i + 1, total())}</b>/${total()} · Score <b>${score}</b>`;
+  $("dots").style.gridTemplateColumns = `repeat(${total()},1fr)`;
+  $("dots").innerHTML = round.map((_, k) => {
+    const c = k < answers.length ? (answers[k].ok ? "ok" : "no") : (k === i && !done ? "now" : "");
+    return `<li class="${c}"></li>`;
+  }).join("");
+}
+
+// Show the photo, with a message while it loads or if it fails.
+// If the photo fails, try the next photo from the same article.
+function setPhoto(x) {
+  const img = $("photo"), msg = $("photoMsg"), at = i, b = x.item;
+  msg.textContent = "Fetching the photo…"; msg.hidden = false;
+  img.onload = () => { if (at === i) msg.hidden = true; };
+  img.onerror = async () => {
+    if (at !== i) return;
+    if (await nextPhoto(b)) { if (at === i) img.src = b.src; }
+    else if (at === i) msg.textContent = "This photo wouldn't load. Pick any answer to move on.";
+  };
+  img.src = b.src;
+}
+
+function show() {
+  const x = round[i];
+  picked = false;
+  x._order = shuffle(x.options);
+  $("cat").textContent = SHOWGROUP ? x.category : `Question ${i + 1}`;
+  setPhoto(x);
+  $("question").textContent = x.q;
+  $("options").innerHTML = x._order.map((o, k) =>
+    `<li><button class="opt" type="button" id="opt-${k}" data-v="${esc(o)}"><span class="key">${KEYS[k]}</span><span class="txt">${esc(o)}</span><span class="res" aria-hidden="true"></span></button></li>`
+  ).join("");
+  $("fact").hidden = true;
+  const b = $("mainBtn"); b.disabled = true; b.textContent = "Pick an answer";
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function choose(value) {
+  if (picked) return;
+  picked = true;
+  const x = round[i], ok = value === x.answer;
+  if (ok) score++;
+  answers.push({ x, value, ok });
+  buzz(ok ? 20 : [30, 40, 30]);
+
+  document.querySelectorAll(".opt").forEach(btn => {
+    const v = btn.dataset.v; btn.disabled = true;
+    if (v === x.answer) { btn.classList.add("correct"); btn.querySelector(".res").textContent = "✓"; }
+    else if (v === value) { btn.classList.add("wrong"); btn.querySelector(".res").textContent = "✗"; }
+    else btn.classList.add("faded");
+  });
+
+  const vd = $("verdict");
+  vd.textContent = ok ? "Correct!" : `Not quite. It's the ${x.answer.toLowerCase()}.`;
+  vd.className = "verdict " + (ok ? "ok" : "no");
+  $("factText").textContent = x.fact || "";
+  $("factText").hidden = !x.fact;
+  $("credit").href = x.item.credit;
+  $("fact").hidden = false;
+  $("live").textContent = vd.textContent + " " + (x.fact || "");
+
+  const b = $("mainBtn");
+  b.disabled = false;
+  b.textContent = i === total() - 1 ? "See your results →" : "Next question →";
+  b.focus({ preventScroll: true });
+  header();
+  requestAnimationFrame(() => $("fact").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }));
+}
+
+function finish() {
+  $("play").hidden = true; $("over").hidden = false;
+  const n = total(), pct = score / n;
+  $("finalScore").textContent = `${score}/${n}`;
+  $("finalMsg").textContent = pct >= .9 ? "Outstanding. Take a bow." : pct >= .7 ? "Great result. You know your instruments." : pct >= .5 ? "Solid effort. Have another go." : "A tough set. Every round is different, so try again.";
+  let best = score;
+  try { const key = "instruments-best-" + (DATA.version || "1"); best = Math.max(score, +(localStorage.getItem(key) || 0)); localStorage.setItem(key, best); } catch (e) {}
+  $("best").textContent = `Best score on this device: ${best}/${n}`;
+  $("review").innerHTML = answers.map(a =>
+    `<li><span class="mark ${a.ok ? "ok" : "no"}" aria-label="${a.ok ? "correct" : "wrong"}">${a.ok ? "✓" : "✗"}</span><img class="thumb" src="${esc(a.x.item.src)}" alt="Photo of the ${esc(a.x.answer.toLowerCase())}">
+     <span class="ans">${a.ok ? `<b>${esc(a.x.answer)}</b>` : `You said ${esc(a.value)} · answer: <b>${esc(a.x.answer)}</b>`}</span></li>`
+  ).join("");
+  $("shareBtn").textContent = "Share score";
+  const b = $("mainBtn"); b.disabled = false; b.textContent = "Play again ↻"; b.focus({ preventScroll: true });
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function start() {
+  round = shuffle(ITEMS).slice(0, Math.min(PER, ITEMS.length)).map(makeQuestion);
+  i = 0; score = 0; answers = [];
+  $("over").hidden = true; $("play").hidden = false;
+  round.slice(1).forEach(x => { new Image().src = x.item.src; });   // preload the rest of the round
+  show();
+}
+
+// Share the score with the phone's share sheet, or copy it if that isn't available.
+async function share() {
+  const text = `I scored ${score}/${total()} on the Musical Instruments Quiz.`;
+  try { if (navigator.share) { await navigator.share({ text }); return; } }
+  catch (e) { if (e && e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(text); $("shareBtn").textContent = "Copied ✓"; }
+  catch (e) { $("shareBtn").textContent = "Couldn't share"; }
+}
+
+$("shareBtn").addEventListener("click", share);
+$("options").addEventListener("click", e => { const b = e.target.closest(".opt"); if (b) choose(b.dataset.v); });
+$("mainBtn").addEventListener("click", () => {
+  if (!$("over").hidden) start();
+  else if (picked) { if (i < total() - 1) { i++; show(); } else finish(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "A" || !round.length) return;
+  const k = e.key.toUpperCase(), idx = KEYS.indexOf(k);
+  if (!picked && $("over").hidden && idx > -1 && idx < (round[i]?._order.length || 0) && k.length === 1) { e.preventDefault(); choose(round[i]._order[idx]); }
+  else if (e.key === "Enter" && !$("mainBtn").disabled && document.activeElement !== $("mainBtn") && !(document.activeElement && document.activeElement.closest(".ghost"))) { e.preventDefault(); $("mainBtn").click(); }
+});
+
+function fail(msg) {
+  $("play").innerHTML = `<div class="error">${msg}</div>`;
+  $("mainBtn").textContent = "No questions loaded";
+}
+
+(async () => {
+  if (ITEMS.length < 5) return fail("The quiz content couldn't be loaded. Check the quiz-data block for a JSON typo, such as a missing comma or quote.");
+  $("question").textContent = "Tuning up…";
+  $("photoMsg").textContent = "Looking up photos on Wikipedia…"; $("photoMsg").hidden = false;
+  try { await loadPhotos(); }
+  catch (e) { console.error(e); return fail("Couldn't reach Wikipedia to fetch the photos. Check your connection and reload the page."); }
+  if (ITEMS.length < 5) return fail("Too few photos could be found on Wikipedia. Reload the page to try again.");
+  $("foot").textContent = `${ITEMS.length} instruments · photos & facts: Wikimedia · v${(DATA.version || "1").split(" ")[0]}`;
+  start();
+})();
+</script>
+</body>
+</html>
